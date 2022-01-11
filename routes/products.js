@@ -1,6 +1,5 @@
 const router = require('express').Router();
-const productModel = require('../models/products');
-require('dotenv').config();
+const productModel = require('../models/product');
 
 
 /* GET ALL PRODUCTS */
@@ -32,7 +31,7 @@ router.get('/products/category/:catName', (req, res)=>{
 
 /* ADD PRODUCT */
 router.post('/addProduct', (req, res)=>{
-    productModel.addProduct().then((docs)=>{
+    productModel.addProduct(req.body).then((docs)=>{
         res.status(200).json(docs);
     }).catch((err)=>{
         res.status(400).json(err);
@@ -41,7 +40,7 @@ router.post('/addProduct', (req, res)=>{
 
 /* DELETE PRODUCT */
 router.delete('/product/:prodId', (req, res)=>{
-    productModel.deleteProductById().then((docs)=>{
+    productModel.deleteProductById(req.params.prodId).then((docs)=>{
         res.status(200).json(docs);
     }).catch((err)=>{
         res.status(400).json(err);
@@ -50,13 +49,12 @@ router.delete('/product/:prodId', (req, res)=>{
 
 /* EDIT PRODUCT */
 router.patch('/product/:prodId', (req, res)=>{
-    productModel.editProductById().then((docs)=>{
+    productModel.editProductById(req.params.prodId, req.body).then((docs)=>{
         res.status(200).json(docs);
     }).catch((err)=>{
         res.status(400).json(err);
     });
 });
-
 
 
 module.exports = router;
