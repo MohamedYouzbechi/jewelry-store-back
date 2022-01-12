@@ -16,10 +16,12 @@ app.use((req, res, next) => {
 const productsRouter = require('./routes/products');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
+const orderRouter = require('./routes/order');
 
 app.use('/', productsRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
+app.use('/orders', orderRouter);
 
 
 app.listen(3000, console.log('Server run in port 3000'));

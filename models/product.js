@@ -3,6 +3,7 @@ const Category = require('./category');
 require('dotenv').config();
 
 let schemaProduct = mongoose.Schema({
+  id: String,
   title: String,
   image: String,
   images: String,
@@ -30,10 +31,14 @@ exports.getAllProducts = ()=>{
 exports.getProductById = (prodId)=>{
   return new Promise((resolve, reject)=>{
     mongoose.connect(url,{useNewUrlParser:true, useUnifiedTopology:true}).then(()=>{
-      return Product.findById(prodId)
-    }).then((doc)=>{
+      return Product.findOne({id: prodId})
+    }).then((product)=>{
       mongoose.disconnect();
-      resolve(doc)
+      if (product) {
+        resolve(product);
+      }else{
+        resolve({message: `NO PRODUCT FOUND WITH ID : ${prodId}`});
+      }
     }).catch((err)=>{
       mongoose.disconnect();
       reject(err)})
