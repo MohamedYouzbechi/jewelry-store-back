@@ -1,5 +1,5 @@
 const { reject } = require('bcrypt/promises');
-const Product = require('./product');
+const {Product} = require('./product');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -131,19 +131,28 @@ exports.getOrderById = (orderId)=>{
 }
 
 // Place New Order
-exports.addNewOrder =  async (userId, products) => {
+exports.addNewOrder =  (userId, products) => {
     return new Promise((resolve, reject)=>{
-        mongoose.connect(url, {useNewUrlParser:true, useUnifiedTopology:true}).then(()=>{      
-            let order = new Order({
-                // id : ,
+        mongoose.connect(url, {useNewUrlParser:true, useUnifiedTopology:true}).then(async()=>{      
+            let maxId = await Order.findOne({}, { _id: 0, id: 1 })
+              .sort({ id: -1 })
+              .collation({ locale: "en_US", numericOrdering: true });
+            
+              let order = new Order({
+                id : parseInt(maxId.id) + 1,
                 user_id : userId
             }) 
             return order.save();
-        }).then((newOrder) => {
+        }).then(async (newOrder) => {
             if (newOrder.id > 0) {
+                let maxIdOD = await OrderDetails.findOne({}, { _id: 0, id: 1 })
+                    .sort({ id: -1 })
+                    .collation({ locale: "en_US", numericOrdering: true });
+                let currentId = parseInt(maxIdOD.id);
+
                 products.forEach(async (p) => {
                     // let data = await database.table('products').filter({id: p.id}).withFields(['quantity']).get();
-                    let data = await Product.findOne({id: p.id})
+                    let data = await Product.findOne({id: p.id}, {quantity: 1})
                     let inCart = parseInt(p.incart);
 
                     // Deduct the number of pieces ordered from the quantity in database
@@ -157,8 +166,9 @@ exports.addNewOrder =  async (userId, products) => {
                     }
 
                     // Insert order details w.r.t the newly created order Id
+                    ++currentId;
                     let orderDetails = new OrderDetails({
-                        // id: String,
+                        id: currentId,
                         order_id: newOrder.id,
                         product_id: p.id,
                         quantity: inCart,
@@ -175,7 +185,7 @@ exports.addNewOrder =  async (userId, products) => {
                 reject({message: 'New order failed while adding order details', success: false});
             }
             
-        }).catch((err)=>{mongoose.disconnect(); reject(err)})
+        }).catch((err)=>{mongoose.disconnect(); reject("errvv")})
     })
 };
 

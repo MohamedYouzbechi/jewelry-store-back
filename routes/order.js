@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Place New Order
-router.post('/new', async (req, res) => {
+router.post('/new', (req, res) => {
     let {userId, products} = req.body;
     if (userId !== null && userId > 0) {
         orderModel.addNewOrder(userId, products).then((newOrderId)=>{

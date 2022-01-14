@@ -15,6 +15,8 @@ let schemaProduct = mongoose.Schema({
 });
 
 var Product = mongoose.model('Product', schemaProduct);
+exports.Product = Product;
+
 var url = process.env.URL;
 
 exports.getAllProducts = ()=>{
