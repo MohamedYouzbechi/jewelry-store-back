@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
-const Category = require('./categories');
+const Category = require('./category');
 require('dotenv').config();
 
 let schemaProduct = mongoose.Schema({
+  id: String,
   title: String,
   image: String,
   images: String,
@@ -14,6 +15,7 @@ let schemaProduct = mongoose.Schema({
 });
 
 var Product = mongoose.model('Product', schemaProduct);
+exports.Product = Product;
 
 var url = process.env.URL;
 
@@ -28,13 +30,17 @@ exports.getAllProducts = ()=>{
   })
 }
 
-exports.getProductById = (id)=>{
+exports.getProductById = (prodId)=>{
   return new Promise((resolve, reject)=>{
     mongoose.connect(url,{useNewUrlParser:true, useUnifiedTopology:true}).then(()=>{
-      return Product.findById(id)
-    }).then((doc)=>{
+      return Product.findOne({id: prodId})
+    }).then((product)=>{
       mongoose.disconnect();
-      resolve(doc)
+      if (product) {
+        resolve(product);
+      }else{
+        resolve({message: `NO PRODUCT FOUND WITH ID : ${prodId}`});
+      }
     }).catch((err)=>{
       mongoose.disconnect();
       reject(err)})
@@ -82,18 +88,18 @@ exports.getProductsByCat = (cat)=>{
   })
 }
 
-exports.addProduct = (title, image, images, description, price, quantity, short_desc, cat_id)=>{
+exports.addProduct = (prod)=>{
   return new Promise((resolve, reject)=>{
     mongoose.connect(url, {useNewUrlParser:true, useUnifiedTopology:true}).then(()=>{
       let product = new Product({
-        title : title,
-        image : image,
-        images : images,
-        description : description,
-        price : price,
-        quantity : quantity,
-        short_desc : short_desc,
-        cat_id : cat_id
+        title : prod.title,
+        image : prod.image,
+        images : prod.images,
+        description : prod.description,
+        price : prod.price,
+        quantity : prod.quantity,
+        short_desc : prod.short_desc,
+        cat_id : prod.cat_id
       })
       product.save().then((doc)=>{
         mongoose.disconnect();
@@ -108,11 +114,10 @@ exports.addProduct = (title, image, images, description, price, quantity, short_
   })
 }
 
-
-exports.deleteProductById = (id)=>{
+exports.deleteProductById = (prodId)=>{
   return new Promise((resolve, reject)=>{
     mongoose.connect(url,{useNewUrlParser:true, useUnifiedTopology:true}).then(()=>{
-      return Product.deleteOne({_id:id});
+      return Product.deleteOne({id: prodId});
     }).then((doc)=>{
       mongoose.disconnect();
       resolve(doc);
@@ -123,10 +128,10 @@ exports.deleteProductById = (id)=>{
   });
 };
 
-exports.editProductById = (id, title, image, images, description, price, quantity, short_desc, cat_id)=>{
+exports.editProductById = (prodId, prod)=>{
   return new Promise((resolve, reject)=>{
     mongoose.connect(url, {useNewUrlParser:true, useUnifiedTopology:true}).then(()=>{
-      return Student.updateOne({_id:id}, {title: title, image: image, images: images, description: description, price: price, quantity: quantity, short_desc: short_desc, cat_id: cat_id});
+      return Student.updateOne({_id: prodId}, {title: prod.title, image: prod.image, images: prod.images, description: prod.description, price: prod.price, quantity: prod.quantity, short_desc: prod.short_desc, cat_id: prod.cat_id});
     }).then((doc)=>{
       mongoose.disconnect();
       resolve(doc);
