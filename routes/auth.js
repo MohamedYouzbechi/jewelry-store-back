@@ -7,6 +7,7 @@ require('dotenv').config();
 
 
 var secretKey = process.env.SECRET_KEY
+const secretKeyCustomer = process.env.SECRET_KEY_CUSTOMER;
 
 const schemaValidation = joi.object({
     email:joi.string().email({minDomainSegments: 2, tlds: { allow: ['com', 'net', 'fr'] }}).required(),
@@ -70,9 +71,9 @@ hasLoginFields = (req, res, next) => {
 /* LOGIN ROUTE */
 router.post('/login', hasLoginFields, (req, res)=>{
     userModel.login(req.body.email, req.body.password).then((user) => {
-        let token = jwt.sign({state: 'true', email: req.body.email}, secretKey, {
+        let token = jwt.sign({state: 'true', email: req.body.email}, user.role =='Admin' ? secretKey : secretKeyCustomer, {
             algorithm: 'HS512',
-            expiresIn: '3h'
+            expiresIn: '2h'
         });
         res.json({
             token: token,
