@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const path = require('path');
+
+app.use('/images', express.static(path.join('images')));
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -17,11 +20,13 @@ const productsRouter = require('./routes/products');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const orderRouter = require('./routes/order');
+const categoryRouter = require('./routes/category');
 
 app.use('/', productsRouter);
-app.use('/users', usersRouter);
+app.use('/', usersRouter);
 app.use('/auth', authRouter);
-app.use('/orders', orderRouter);
+app.use('/', orderRouter);
+app.use('/', categoryRouter);
 
 
 app.listen(3000, console.log('Server run in port 3000'));

@@ -1,17 +1,21 @@
 const router = require('express').Router();
 const userModel = require('../models/user');
+const {verifyTokenAdmin} = require('../helpers/helpers');
+const {verifyTokenCustomerAdmin} = require('../helpers/helpers');
+
+
 
 /* GET All users. */
-router.get('/', (req, res) => {
-    userModel.getAllUsers().then((docs)=>{
-        res.status(200).json(docs);
+router.get('/users', verifyTokenAdmin, (req, res) => {
+    userModel.getAllUsers().then((users)=>{
+        res.status(200).json(users);
     }).catch((err)=>{
         res.status(400).json(err);
     });
 });
 
 /* GET USER BY ID */
-router.get('/:userId', (req, res) => {
+router.get('/user/:userId', verifyTokenCustomerAdmin, (req, res) => {
     let userId = req.params.userId;
 
     userModel.getUserById(userId).then((doc)=>{
@@ -22,7 +26,7 @@ router.get('/:userId', (req, res) => {
 });
 
 /* GET ONE USER WITH EMAIL MATCH  */
-router.get('/validate/:email', (req, res) => {
+router.get('/users/validate/:email', (req, res) => {
 	let email = req.params.email;
 	
     userModel.getUserByEmail(email).then((doc)=>{
@@ -33,7 +37,7 @@ router.get('/validate/:email', (req, res) => {
 });
 
 /* EDIT USER DATA */
-router.patch('/:userId', async (req, res) => {
+router.patch('/user/:userId', verifyTokenCustomerAdmin, async (req, res) => {
     let userId = req.params.userId;
 
     userModel.editUserById(userId, req.body).then((msg)=>{
@@ -41,6 +45,21 @@ router.patch('/:userId', async (req, res) => {
     }).catch((err) => 
         res.status(404).json(err)
     );
+});
+
+/* DELETE USER DATA */
+router.delete('/user/:userId', verifyTokenAdmin, async (req, res) => {
+    let userId = req.params.userId;
+    if (!isNaN(userId)) {
+        userModel.deleteUserById(userId).then((msg)=>{
+            res.status(200).json(msg);
+        }).catch((err) => 
+            res.status(500).json(err)
+        );
+    } else {
+        res.status(500).json({ message: "ID is not a valid number", status: "failure" });
+    }
+    
 });
 
 module.exports = router;
